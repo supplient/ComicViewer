@@ -1,0 +1,22 @@
+body{
+    display: flex;
+    justify-content: center;
+    padding:0px;
+    border:0px;
+    margin:0px;
+    overflow: hidden;
+}
+
+div{
+    display: flex;
+    justify-content: center;
+    padding:0px;
+    border:0px;
+    margin:0px;
+}
+
+image{
+    padding:0px;
+    border:0px;
+    margin:0px;
+}

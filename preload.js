@@ -4,10 +4,6 @@ const {dialog, BrowserWindow} = require('electron').remote;
 const fs = require("fs");
 const path = require("path");
 
-function $(id) {
-    return document.getElementById(id);
-}
-
 function selectDirDialog(callback) {
     dialog.showOpenDialog({ properties: ['openDirectory'] }).then((dialog_select) => {
         var dir_path = dialog_select.filePaths[0];
@@ -15,21 +11,10 @@ function selectDirDialog(callback) {
     })
 }
 
-function createThumbnail(filepath, callback) {
+function createThumbnail(img_path, callback) {
     const max_height = 200;
     const max_width = 50;
-    var img = new Image(max_width, max_height);
-    img.src = urlEscape(filepath);
-    img.onload = ()=>{
-        var nat_height = img.naturalHeight;
-        var nat_width = img.naturalWidth;
-        var tmp = adjustWidthHeight(nat_width, nat_height, max_width, max_height);
-        img.width = tmp[0];
-        img.height = tmp[1];
-        if(callback)
-            callback(img);
-    };
-    return img;
+    return createImg(img_path, max_height, max_width, callback);
 }
 
 function isDirectory(filepath) {
@@ -82,13 +67,14 @@ function createPicItem(filepath) {
             fullscreen: true,
             webPreferences: {
                 preload: path.join(__dirname, 'view_preload.js'),
+                enableRemoteModule: true,
                 // nodeIntegration: true,
-                // enableRemoteModule: true
                 additionalArguments: [
                     filepath,
                 ],
             },
         });
+        imgWindow.removeMenu();
 
         // and load the index.html of the app.
         imgWindow.loadFile('view.html');
@@ -139,6 +125,8 @@ window.addEventListener('DOMContentLoaded', () => {
         // and load the index.html of the app.
         mainWindow.loadFile('view.html');
     };
+
+    changeNowDir("D:/theothers/ACG/COMIC/ComicViewer/test/root/%#+ &=A9御姉流)]ソラノシタデ(ヨスガノソラ)~");
 
     console.log("test: " + isDirectory("test"));
     console.log("01.jpg: " + isDirectory("01.jpg"));

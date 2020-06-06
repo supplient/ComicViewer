@@ -1,3 +1,23 @@
+
+function $(id) {
+    return document.getElementById(id);
+}
+
+function createImg(img_path, max_height, max_width, callback) {
+    var img = new Image(max_width, max_height);
+    img.src = urlEscape(img_path);
+    img.onload = ()=>{
+        var nat_height = img.naturalHeight;
+        var nat_width = img.naturalWidth;
+        var tmp = adjustWidthHeight(nat_width, nat_height, max_width, max_height);
+        img.width = tmp[0];
+        img.height = tmp[1];
+        if(callback)
+            callback(img);
+    };
+    return img;
+}
+
 function adjustWidthHeight(nat_width, nat_height, max_width, max_height) {
     var max_ratio = max_height / max_width;
     var width, height;
