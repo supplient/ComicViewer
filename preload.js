@@ -60,46 +60,59 @@ function createDirItem(filepath) {
     return div;
 }
 
+function openImageViewWindow(filepath) {
+    const imgWindow = new BrowserWindow({
+        fullscreen: true,
+        webPreferences: {
+            preload: path.join(__dirname, 'view_preload.js'),
+            enableRemoteModule: true,
+            // nodeIntegration: true,
+            additionalArguments: [
+                filepath,
+            ],
+        },
+    });
+    imgWindow.removeMenu();
+
+    // and load the index.html of the app.
+    imgWindow.loadFile('view.html');
+
+    imgWindow.webContents.openDevTools()
+}
+
 function createPicItem(filepath) {
     var div = createItemDiv(filepath, false);
     div.ondblclick = (ev) => {
-        const imgWindow = new BrowserWindow({
-            fullscreen: true,
-            webPreferences: {
-                preload: path.join(__dirname, 'view_preload.js'),
-                enableRemoteModule: true,
-                // nodeIntegration: true,
-                additionalArguments: [
-                    filepath,
-                ],
-            },
-        });
-        imgWindow.removeMenu();
-
-        // and load the index.html of the app.
-        imgWindow.loadFile('view.html');
-
-        imgWindow.webContents.openDevTools()
+        openImageViewWindow(filepath);
     }
     return div;
 }
 
 function changeNowDir(dir_path) {
-    var files = fs.readdirSync(dir_path);
+    var allpaths = fs.readdirSync(dir_path);
     $("imageSet").innerHTML = "";
     $("imageSet").append(createUpDirItem(path.dirname(dir_path)));
 
-    for(var filepath of files) {
+    var dirs = [];
+    var pics = [];
+    for(var filepath of allpaths) {
         filepath = path.join(dir_path, filepath);
-
-        var thumb;
+        
         if(isDirectory(filepath))
-            thumb = createDirItem(filepath)
+            dirs.push(filepath);
         else if(isPicture(filepath))
-            thumb = createPicItem(filepath)
+            pics.push(filepath);
         else
             continue;
-        
+    }
+
+    for(var dir of dirs) {
+        var thumb = createDirItem(dir);
+        $("imageSet").append(thumb);
+    }
+
+    for(var pic of pics) {
+        var thumb = createPicItem(pic);
         $("imageSet").append(thumb);
     }
 }
@@ -126,7 +139,8 @@ window.addEventListener('DOMContentLoaded', () => {
         mainWindow.loadFile('view.html');
     };
 
-    changeNowDir("D:/theothers/ACG/COMIC/ComicViewer/test/root/%#+ &=A9御姉流)]ソラノシタデ(ヨスガノソラ)~");
+    // changeNowDir("D:/theothers/ACG/COMIC/ComicViewer/test/root/%#+ &=A9御姉流)]ソラノシタデ(ヨスガノソラ)~");
+    changeNowDir("D:/theothers/ACG/COMIC/ComicViewer");
 
     console.log("test: " + isDirectory("test"));
     console.log("01.jpg: " + isDirectory("01.jpg"));
