@@ -1,3 +1,39 @@
+const fs = require("fs");
+const path = require("path");
+
+function isDirectory(filepath) {
+    var stat = fs.statSync(filepath);
+    return stat.isDirectory();
+}
+
+function isPicture(filepath) {
+    const valid_ext_list = [
+        ".jpg", ".png", ".gif", 
+    ];
+    var file_ext = path.extname(filepath);
+    for(var valid_ext of valid_ext_list) {
+        if(valid_ext == file_ext)
+            return true;
+    }
+    return false;
+}
+
+function getDirsAndPics(dir_path) {
+    var allpaths = fs.readdirSync(dir_path);
+    var dirs = [];
+    var pics = [];
+    for(var filepath of allpaths) {
+        filepath = path.join(dir_path, filepath);
+        
+        if(isDirectory(filepath))
+            dirs.push(filepath);
+        else if(isPicture(filepath))
+            pics.push(filepath);
+        else
+            continue;
+    }
+    return [dirs, pics];
+}
 
 function $(id) {
     return document.getElementById(id);

@@ -17,23 +17,6 @@ function createThumbnail(img_path, callback) {
     return createImg(img_path, max_height, max_width, callback);
 }
 
-function isDirectory(filepath) {
-    var stat = fs.statSync(filepath);
-    return stat.isDirectory();
-}
-
-function isPicture(filepath) {
-    const valid_ext_list = [
-        ".jpg", ".png", ".gif", 
-    ];
-    var file_ext = path.extname(filepath);
-    for(var valid_ext of valid_ext_list) {
-        if(valid_ext == file_ext)
-            return true;
-    }
-    return false;
-}
-
 function createItemDiv(filepath, isDir) {
     var div = document.createElement("div");
     if(isDir)
@@ -66,7 +49,7 @@ function openImageViewWindow(filepath) {
         webPreferences: {
             preload: path.join(__dirname, 'view_preload.js'),
             enableRemoteModule: true,
-            // nodeIntegration: true,
+            nodeIntegration: true,
             additionalArguments: [
                 filepath,
             ],
@@ -89,22 +72,11 @@ function createPicItem(filepath) {
 }
 
 function changeNowDir(dir_path) {
-    var allpaths = fs.readdirSync(dir_path);
     $("imageSet").innerHTML = "";
     $("imageSet").append(createUpDirItem(path.dirname(dir_path)));
 
-    var dirs = [];
-    var pics = [];
-    for(var filepath of allpaths) {
-        filepath = path.join(dir_path, filepath);
-        
-        if(isDirectory(filepath))
-            dirs.push(filepath);
-        else if(isPicture(filepath))
-            pics.push(filepath);
-        else
-            continue;
-    }
+    var dirs, pics;
+    [dirs, pics] = getDirsAndPics(dir_path);
 
     for(var dir of dirs) {
         var thumb = createDirItem(dir);
