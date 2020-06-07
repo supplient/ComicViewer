@@ -1,6 +1,7 @@
 const { remote } = require("electron");
 const { Menu, MenuItem } = remote;
 const path = require("path");
+const fs = require("fs");
 
 // State vars
 var gDirPath;
@@ -30,9 +31,12 @@ const right_menu = new Menu();
 right_menu.append(new MenuItem({
     label: "Exit",
     click: function() {
-        console.log("clicked");
         remote.getCurrentWindow().close();
     }
+}));
+right_menu.append(new MenuItem({
+    label: "Add bookmark",
+    click: addBookmark
 }));
 window.addEventListener("contextmenu", function(e) {
     e.preventDefault();
@@ -77,4 +81,12 @@ function nextImage() {
         return;
     }
     updateNowImage();
+}
+
+function addBookmark() {
+    // TODO add info to tell bookmark setting status
+    // TODO Here we need a lock because metafile may be changed by several threads
+    var metadata = loadMeta(gDirPath);
+    metadata.bookmark = gPicList[gNowIndex];
+    saveMeta(gDirPath, metadata);
 }
