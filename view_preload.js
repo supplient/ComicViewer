@@ -86,19 +86,7 @@ function nextImage() {
 function addBookmark() {
     // TODO add info to tell bookmark setting status
     // TODO Here we need a lock because metafile may be changed by several threads
-
-    var metapath = path.join(gDirPath, "meta.comicviewermeta");
-    var metadata = {};
-    if(fs.existsSync(metapath)) {
-        // Load if exists
-        var filedata = fs.readFileSync(metapath);
-        metadata = JSON.parse(filedata.toString());
-    }
-
+    var metadata = loadMeta(gDirPath);
     metadata.bookmark = gPicList[gNowIndex];
-
-    var metastr = JSON.stringify(metadata);
-    fs.writeFileSync(metapath, metastr);
-
-    console.log("Bookmark added.");
+    saveMeta(gDirPath, metadata);
 }

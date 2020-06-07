@@ -1,6 +1,7 @@
 // All of the Node.js APIs are available in the preload process.
 // It has the same sandbox as a Chrome extension.
-const {dialog, BrowserWindow} = require('electron').remote;
+const {remote} = require("electron");
+const {dialog, BrowserWindow, Menu, MenuItem} = remote;
 const fs = require("fs");
 const path = require("path");
 
@@ -35,11 +36,29 @@ function createUpDirItem(updirpath) {
     return div;
 }
 
-function createDirItem(filepath) {
-    var div = createItemDiv(filepath, true);
-    div.ondblclick = (ev) => {
-        changeNowDir(filepath);
-    };
+function createDirItem(dirpath) {
+    var div = createItemDiv(dirpath, true);
+    div.addEventListener("dblclick", (ev) => {
+        changeNowDir(dirpath);
+    });
+
+    div.addEventListener("contextmenu", (ev) => {
+        ev.preventDefault();
+
+        const right_menu = new Menu();
+        right_menu.append(new MenuItem({
+            label: "From Bookmark",
+            click: function() {
+                var metadata = loadMeta(dirpath);
+                if("bookmark" in metadata)
+                    openImageViewWindow(metadata.bookmark);
+                else {
+                    // TODO info user this folder has no bookmark
+                }
+            }
+        }));
+        right_menu.popup({window: remote.getCurrentWindow()});
+    });
     return div;
 }
 

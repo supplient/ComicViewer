@@ -81,3 +81,24 @@ function urlEscape(url) {
     url = url.replace("=", "%3D");
     return url;
 }
+
+function getMetapath(dirpath) {
+    return path.join(dirpath, "meta.comicviewermeta"); 
+}
+
+function loadMeta(dirpath) {
+    var metapath = getMetapath(dirpath);
+    var metadata = {};
+    if(fs.existsSync(metapath)) {
+        // Load if exists
+        var filedata = fs.readFileSync(metapath);
+        metadata = JSON.parse(filedata.toString());
+    }
+    return metadata;
+}
+
+function saveMeta(dirpath, metadata) {
+    var metapath = getMetapath(dirpath);
+    var metastr = JSON.stringify(metadata);
+    fs.writeFileSync(metapath, metastr);
+}
