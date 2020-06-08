@@ -73,9 +73,9 @@ function adjustWidthHeight(nat_width, nat_height, max_width, max_height) {
 }
 
 function urlEscape(url) {
+    url = url.replace("%", "%25");
     url = url.replace("+", "%2B");
     url = url.replace(" ", "%20");
-    url = url.replace("%", "%25");
     url = url.replace("#", "%23");
     url = url.replace("&", "%26");
     url = url.replace("=", "%3D");

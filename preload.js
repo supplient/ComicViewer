@@ -12,18 +12,24 @@ function selectDirDialog(callback) {
     })
 }
 
-function createThumbnail(img_path, callback) {
+function createThumbnail(filepath, is_dir) {
     const max_height = 200;
     const max_width = 50;
-    return createImg(img_path, max_height, max_width, callback);
+    if(is_dir) {
+        var dirs, pics;
+        [dirs, pics] = getDirsAndPics(filepath);
+        if(pics.length == 0)
+            return createImg("folder.png", max_height, max_width);
+        else
+            return createImg(pics[0], max_height, max_width);
+    }
+    else 
+        return createImg(filepath, max_height, max_width);
 }
 
-function createItemDiv(filepath, isDir) {
+function createListItemDiv(filepath, is_dir) {
     var div = document.createElement("div");
-    if(isDir)
-        div.appendChild(createThumbnail("folder.png"));
-    else
-        div.appendChild(createThumbnail(filepath));
+    div.appendChild(createThumbnail(filepath, is_dir));
     var dirname = document.createElement("span");
     dirname.innerText = path.basename(filepath);
     div.appendChild(dirname);
@@ -31,13 +37,19 @@ function createItemDiv(filepath, isDir) {
 }
 
 function createUpDirItem(updirpath) {
-    var div = createDirItem(updirpath);
-    div.childNodes[1].innerText = "..";
+    var div = document.createElement("div");
+    div.appendChild(createThumbnail("folder.png"));
+    var dirname = document.createElement("span");
+    dirname.innerText = "..";
+    div.appendChild(dirname);
+    div.addEventListener("dblclick", (ev) => {
+        changeNowDir(updirpath);
+    });
     return div;
 }
 
 function createDirItem(dirpath) {
-    var div = createItemDiv(dirpath, true);
+    var div = createListItemDiv(dirpath, true);
     div.addEventListener("dblclick", (ev) => {
         changeNowDir(dirpath);
     });
@@ -83,7 +95,7 @@ function openImageViewWindow(filepath) {
 }
 
 function createPicItem(filepath) {
-    var div = createItemDiv(filepath, false);
+    var div = createListItemDiv(filepath, false);
     div.ondblclick = (ev) => {
         openImageViewWindow(filepath);
     }
