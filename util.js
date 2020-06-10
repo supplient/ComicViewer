@@ -86,6 +86,12 @@ function getMetapath(dirpath) {
     return path.join(dirpath, "meta.comicviewermeta"); 
 }
 
+/*
+metadata = {
+    bookmark: path of the bookmark picture
+}
+*/
+
 function loadMeta(dirpath) {
     var metapath = getMetapath(dirpath);
     var metadata = {};

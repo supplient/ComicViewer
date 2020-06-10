@@ -1,0 +1,10 @@
+.thumbContainer {
+    width: 100px;
+    height: 100px;
+    display: inline-flex;
+    justify-content: center;
+}
+
+.thumb {
+    margin: auto;
+}

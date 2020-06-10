@@ -13,18 +13,25 @@ function selectDirDialog(callback) {
 }
 
 function createThumbnail(filepath, is_dir) {
-    const max_height = 200;
-    const max_width = 50;
+    const THUMB_HEIGHT = 100;
+    const THUMB_WIDTH = 100;
+    var div = document.createElement("div");
+    div.className = "thumbContainer";
+
+    var thumb_img;
     if(is_dir) {
         var dirs, pics;
         [dirs, pics] = getDirsAndPics(filepath);
         if(pics.length == 0)
-            return createImg("folder.png", max_height, max_width);
+            thumb_img = createImg("folder.png", THUMB_HEIGHT, THUMB_WIDTH);
         else
-            return createImg(pics[0], max_height, max_width);
+            thumb_img = createImg(pics[0], THUMB_HEIGHT, THUMB_WIDTH);
     }
     else 
-        return createImg(filepath, max_height, max_width);
+        thumb_img = createImg(filepath, THUMB_HEIGHT, THUMB_WIDTH);
+    thumb_img.className = "thumb";
+    div.appendChild(thumb_img);
+    return div;
 }
 
 function createListItemDiv(filepath, is_dir) {
@@ -156,6 +163,6 @@ window.addEventListener('DOMContentLoaded', () => {
     };
 
     // changeNowDir("D:/theothers/ACG/COMIC/ComicViewer/test/root/%#+ &=A9御姉流)]ソラノシタデ(ヨスガノソラ)~");
-    changeNowDir("D:/theothers/ACG/COMIC/ComicViewer");
+    changeNowDir("D:/theothers\\ACG\\COMIC\\ComicViewer\\resources\\app\\test\\root");
     switchToDirView();
 })
