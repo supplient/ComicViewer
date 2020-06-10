@@ -36,17 +36,22 @@ function createThumbnail(filepath, is_dir) {
 
 function createListItemDiv(filepath, is_dir) {
     var div = document.createElement("div");
+    div.className = "item";
     div.appendChild(createThumbnail(filepath, is_dir));
     var dirname = document.createElement("span");
+    dirname.className = "itemText";
     dirname.innerText = path.basename(filepath);
+    dirname.title = path.basename(filepath);
     div.appendChild(dirname);
     return div;
 }
 
 function createUpDirItem(updirpath) {
     var div = document.createElement("div");
+    div.className = "item";
     div.appendChild(createThumbnail("folder.png"));
     var dirname = document.createElement("span");
+    dirname.className = "itemText";
     dirname.innerText = "..";
     div.appendChild(dirname);
     div.addEventListener("dblclick", (ev) => {
