@@ -15,21 +15,43 @@ function selectDirDialog(callback) {
 function createThumbnail(filepath, is_dir) {
     const THUMB_HEIGHT = 100;
     const THUMB_WIDTH = 100;
-    var div = document.createElement("div");
-    div.className = "thumbContainer";
+    const PREVIEW_HEIGHT = 500;
+    const PREVIEW_WIDTH = 500;
 
-    var thumb_img;
+    var img_path;
     if(is_dir) {
         var dirs, pics;
         [dirs, pics] = getDirsAndPics(filepath);
         if(pics.length == 0)
-            thumb_img = createImg("folder.png", THUMB_HEIGHT, THUMB_WIDTH);
+            img_path = "folder.png";
         else
-            thumb_img = createImg(pics[0], THUMB_HEIGHT, THUMB_WIDTH);
+            img_path = pics[0];
     }
     else 
-        thumb_img = createImg(filepath, THUMB_HEIGHT, THUMB_WIDTH);
+        img_path = filepath;
+
+    var thumb_img;
+    thumb_img = createImg(img_path, THUMB_HEIGHT, THUMB_WIDTH);
     thumb_img.className = "thumb";
+    thumb_img.addEventListener("mouseenter", (ev) => {
+        var previewContainer = $("previewContainer");
+        previewContainer.innerHTML = "";
+        var preview = createImg(img_path, PREVIEW_HEIGHT, PREVIEW_WIDTH);
+        previewContainer.appendChild(preview);
+        previewContainer.hidden = false;
+    });
+    thumb_img.addEventListener("mousemove", (ev) => {
+        var previewContainer = $("previewContainer");
+        previewContainer.style.left = ev.x.toString() + "px";
+        previewContainer.style.top = ev.y.toString() + "px";
+    });
+    thumb_img.addEventListener("mouseleave", () => {
+        var previewContainer = $("previewContainer");
+        previewContainer.hidden = true;
+    });
+
+    var div = document.createElement("div");
+    div.className = "thumbContainer";
     div.appendChild(thumb_img);
     return div;
 }

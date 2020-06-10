@@ -22,3 +22,8 @@
 .item {
     display: inline-block;
 }
+
+#previewContainer {
+    position: absolute;
+    pointer-events: none;
+}
