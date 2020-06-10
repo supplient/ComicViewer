@@ -103,20 +103,47 @@ function createPicItem(filepath) {
 }
 
 function changeNowDir(dir_path) {
-    $("imageSet").innerHTML = "";
-    $("imageSet").append(createUpDirItem(path.dirname(dir_path)));
+    $("dirView").innerHTML = "";
+    $("dirView").append(createUpDirItem(path.dirname(dir_path)));
+    $("imageView").innerHTML = "";
+    $("imageView").append(createUpDirItem(path.dirname(dir_path)));
 
     var dirs, pics;
     [dirs, pics] = getDirsAndPics(dir_path);
 
     for(var dir of dirs) {
         var thumb = createDirItem(dir);
-        $("imageSet").append(thumb);
+        $("dirView").append(thumb);
     }
 
     for(var pic of pics) {
         var thumb = createPicItem(pic);
-        $("imageSet").append(thumb);
+        $("imageView").append(thumb);
+    }
+
+    if(dirs.length == 0)
+        switchToImageView();
+    else if(pics.length == 0)
+        switchToDirView();
+}
+
+function switchToDirView() {
+    $("imageView").hidden = true;
+    $("dirView").hidden = false;
+
+    $("switchViewBtn").innerText = "Switch To ImageView";
+    $("switchViewBtn").onclick = () => {
+        switchToImageView();
+    }
+}
+
+function switchToImageView() {
+    $("imageView").hidden = false;
+    $("dirView").hidden = true;
+
+    $("switchViewBtn").innerText = "Switch To DirView";
+    $("switchViewBtn").onclick = () => {
+        switchToDirView();
     }
 }
 
@@ -128,26 +155,7 @@ window.addEventListener('DOMContentLoaded', () => {
         });
     };
 
-    $("fullscreenTest").onclick = () => {
-        const mainWindow = new BrowserWindow({
-            fullscreen: true,
-            webPreferences: {
-                // preload: path.join(__dirname, 'view_preload.js'),
-                // nodeIntegration: true,
-                // enableRemoteModule: true
-            }
-        });
-
-        // and load the index.html of the app.
-        mainWindow.loadFile('view.html');
-    };
-
     // changeNowDir("D:/theothers/ACG/COMIC/ComicViewer/test/root/%#+ &=A9御姉流)]ソラノシタデ(ヨスガノソラ)~");
     changeNowDir("D:/theothers/ACG/COMIC/ComicViewer");
-
-    console.log("test: " + isDirectory("test"));
-    console.log("01.jpg: " + isDirectory("01.jpg"));
-
-    console.log("01.jpg: " + isPicture("01.jpg"));
-    console.log("index.html: " + isPicture("index.html"));
+    switchToDirView();
 })
