@@ -181,6 +181,10 @@ function switchToImageView() {
     }
 }
 
+function updateInfo(info_str) {
+    $("infoText").innerText = info_str;
+}
+
 window.addEventListener('DOMContentLoaded', () => {
     $("dirGetTest").onclick = () => {
         selectDirDialog((dir_path) => {
@@ -192,4 +196,5 @@ window.addEventListener('DOMContentLoaded', () => {
     // changeNowDir("D:/theothers/ACG/COMIC/ComicViewer/test/root/%#+ &=A9御姉流)]ソラノシタデ(ヨスガノソラ)~");
     changeNowDir("D:/theothers\\ACG\\COMIC\\ComicViewer\\resources\\app\\test\\root");
     switchToDirView();
+    updateInfo("INFOINFOINFOINFOINFOINFOINFOINFOINFOINFOINFOINFOINFOINFOINFOINFO");
 })
