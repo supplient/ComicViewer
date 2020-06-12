@@ -129,7 +129,8 @@ function openImageViewWindow(filepath) {
     imgWindow.removeMenu();
     imgWindow.loadFile('view.html');
 
-    imgWindow.webContents.openDevTools()
+    if(remote.getGlobal("debug_flag"))
+        imgWindow.webContents.openDevTools()
 }
 
 function createPicItem(filepath) {

@@ -2,6 +2,8 @@
 const {app, BrowserWindow} = require('electron')
 const path = require('path')
 
+global.debug_flag = false;
+
 function createWindow () {
   // Create the browser window.
   const mainWindow = new BrowserWindow({
@@ -19,7 +21,8 @@ function createWindow () {
   mainWindow.loadFile('index.html')
 
   // Open the DevTools.
-  mainWindow.webContents.openDevTools()
+  if(global.debug_flag)
+    mainWindow.webContents.openDevTools()
 }
 
 // This method will be called when Electron has finished
