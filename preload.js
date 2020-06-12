@@ -9,6 +9,7 @@ const READ_DIR = "(0";
 const FOLDER_THUMB_PATH = "folder.png";
 
 var gShowRead = false;
+var gRootDir;
 var gNowDir;
 
 function selectDirDialog(callback) {
@@ -142,12 +143,14 @@ function createPicItem(filepath) {
 }
 
 function changeNowDir(dir_path) {
-    $("dirView").innerHTML = "";
-    $("dirView").append(createUpDirItem(path.dirname(dir_path)));
-    $("imageView").innerHTML = "";
-    $("imageView").append(createUpDirItem(path.dirname(dir_path)));
-
     gNowDir = dir_path;
+
+    $("dirView").innerHTML = "";
+    $("imageView").innerHTML = "";
+    if(gNowDir != gRootDir) {
+        $("dirView").append(createUpDirItem(path.dirname(dir_path)));
+        $("imageView").append(createUpDirItem(path.dirname(dir_path)));
+    }
 
     var dirs, pics;
     [dirs, pics] = getDirsAndPics(dir_path);
@@ -199,21 +202,17 @@ function updateInfo(info_str) {
     showInfoAndUpdateInfoText($("infoContainer"), $("infoText"), info_str);
 }
 
+function setRootDir(dir_path) {
+    gRootDir = dir_path;
+    $("rootDirPath").innerText = dir_path;
+    changeNowDir(dir_path);
+}
+
 window.addEventListener('DOMContentLoaded', () => {
     $("dirGetTest").onclick = () => {
         selectDirDialog((dir_path) => {
-            $("rootDirPath").innerText = dir_path;
-            changeNowDir(dir_path);
+            setRootDir(dir_path);
         });
-    };
-    $("infoTest").onclick = () => {
-        updateInfo("INFOINFOINFOINFOINFOINFOINFOINFOINFOINFOINFOINFOINFOINFOINFOINFO");
-    };
-    $("checkTest").onclick = () => {
-        if(askForCheck("Test check\nSelect one"))
-            updateInfo("Yes");
-        else
-            updateInfo("No");
     };
     $("showRead").onclick = () => {
         gShowRead = $("showRead").checked;
@@ -246,6 +245,7 @@ window.addEventListener('DOMContentLoaded', () => {
             changeNowDir(gNowDir);
     };
 
-    changeNowDir("D:\\theothers\\ACG\\COMIC\\ComicViewer\\resources\\app\\test\\root");
+    var root_dir = path.normalize("D:\\theothers\\ACG\\COMIC\\ComicViewer\\resources\\app\\test\\root");
+    setRootDir(root_dir);
     switchToDirView();
 })
