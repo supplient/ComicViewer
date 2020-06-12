@@ -5,6 +5,8 @@ const {dialog, BrowserWindow, Menu, MenuItem} = remote;
 const fs = require("fs");
 const path = require("path");
 
+const READ_DIR = "(0";
+
 var gShowRead = false;
 var gNowDir;
 
@@ -94,17 +96,15 @@ function createDirItem(dirpath) {
     div.addEventListener("contextmenu", (ev) => {
         ev.preventDefault();
 
+        var metadata = loadMeta(dirpath);
         const right_menu = new Menu();
         right_menu.append(new MenuItem({
             label: "From Bookmark",
             click: function() {
-                var metadata = loadMeta(dirpath);
                 if("bookmark" in metadata)
                     openImageViewWindow(metadata.bookmark);
-                else {
-                    // TODO info user this folder has no bookmark
-                }
-            }
+            },
+            enabled: "bookmark" in metadata
         }));
         right_menu.popup({window: remote.getCurrentWindow()});
     });
@@ -124,8 +124,6 @@ function openImageViewWindow(filepath) {
         },
     });
     imgWindow.removeMenu();
-
-    // and load the index.html of the app.
     imgWindow.loadFile('view.html');
 
     imgWindow.webContents.openDevTools()
@@ -152,6 +150,8 @@ function changeNowDir(dir_path) {
 
     for(var dir of dirs) {
         if(!gShowRead) {
+            if(path.basename(dir) == READ_DIR)
+                continue;
             var metadata = loadMeta(dir);
             if(metadata.read)
                 continue;
@@ -210,13 +210,38 @@ window.addEventListener('DOMContentLoaded', () => {
             updateInfo("Yes");
         else
             updateInfo("No");
-    }
+    };
     $("showRead").onclick = () => {
         gShowRead = $("showRead").checked;
         changeNowDir(gNowDir);
-    }
+    };
+    $("moveToReadBtn").onclick = () => {
+        var nowReadDir = path.join(gNowDir, READ_DIR);
+        var dirs, pics;
+        [dirs, pics] = getDirsAndPics(gNowDir);
 
-    // changeNowDir("D:/theothers/ACG/COMIC/ComicViewer/test/root/%#+ &=A9御姉流)]ソラノシタデ(ヨスガノソラ)~");
+        var readDirs = [];
+        for (const dir of dirs) {
+            var metadata = loadMeta(dir);
+            if(!metadata.read)
+                continue;
+            readDirs.push(dir);
+        }
+
+        // move to read dir
+        var movedCount = 0;
+        for (const dir of readDirs) {
+            var newPath = path.join(nowReadDir, path.basename(dir));
+            fs.rename(dir, newPath, () => {
+                movedCount++;
+                if(movedCount >= readDirs.length)
+                    updateInfo("Moved " + movedCount.toString() + " directories to " + READ_DIR);
+            });
+        }
+        if(gShowRead)
+            changeNowDir(gNowDir);
+    };
+
     changeNowDir("D:\\theothers\\ACG\\COMIC\\ComicViewer\\resources\\app\\test\\root");
     switchToDirView();
 })
