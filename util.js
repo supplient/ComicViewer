@@ -1,3 +1,5 @@
+const {remote} = require("electron");
+const {dialog} = remote;
 const fs = require("fs");
 const path = require("path");
 
@@ -107,4 +109,40 @@ function saveMeta(dirpath, metadata) {
     var metapath = getMetapath(dirpath);
     var metastr = JSON.stringify(metadata);
     fs.writeFileSync(metapath, metastr);
+}
+
+function showInfoAndUpdateInfoText(container_obj, text_obj, info_text) {
+    text_obj.innerText = info_text;
+
+    var infoContainer = container_obj;
+    infoContainer.classList.add("infoShow");
+
+    infoContainer.addEventListener("transitionend", (ev) => {
+        var nowOpacity = window.getComputedStyle(infoContainer).opacity;
+        if(nowOpacity == 1) {
+            if(infoContainer.classList.contains("infoShow"))
+                infoContainer.classList.remove("infoShow");
+        }
+    });
+}
+
+function askForCheck(check_str, title) {
+    var msgBoxOptions = {
+        type: "question",
+        buttons: [
+            "Yes", "No"
+        ],
+        message: check_str,
+        cancelId: 1
+    }
+    if(title)
+        msgBoxOptions.title = title;
+    var checkReplay = dialog.showMessageBoxSync(msgBoxOptions);
+
+    if(checkReplay == 0)
+        return true;
+    else if(checkReplay == 1)
+        return false;
+    else
+        throw "Error, invalid checkReply: " + checkReplay.toString();
 }
