@@ -84,9 +84,21 @@ function nextImage() {
 }
 
 function addBookmark() {
-    // TODO add info to tell bookmark setting status
     // TODO Here we need a lock because metafile may be changed by several threads
     var metadata = loadMeta(gDirPath);
-    metadata.bookmark = gPicList[gNowIndex];
+    var prevImgPath = metadata.bookmark;
+    var nowImgPath = gPicList[gNowIndex];
+    if(prevImgPath) {
+        var messageStr = "";
+        messageStr = "将书签从\"" + prevImgPath + "\"更新为\"" + nowImgPath + "\"?";
+        if(!askForCheck(messageStr))
+            return;
+    }
+    metadata.bookmark = nowImgPath;
     saveMeta(gDirPath, metadata);
+    updateInfo("添加书签：" + nowImgPath);
+}
+
+function updateInfo(info_str) {
+    showInfoAndUpdateInfoText($("infoContainer"), $("infoText"), info_str);
 }

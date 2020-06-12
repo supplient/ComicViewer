@@ -1,11 +1,4 @@
 .infoHide {
-    background-color: rgb(91, 233, 197);
-    position: fixed;
-    width: 300px;
-    height: 170px;
-    bottom: 0px;
-    right: 0px;
-    display: flex;
     visibility: hidden;
     transition: opacity 3s ease 4s, visibility 7s;
     opacity: 0;

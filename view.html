@@ -7,9 +7,14 @@
     <meta http-equiv="X-Content-Security-Policy" content="default-src 'self'; script-src 'self'">
     <title>Hello World!</title>
     <link rel="stylesheet" type="text/css" href="view.css" />
+    <link rel="stylesheet" type="text/css" href="util.css" />
   </head>
   <body>
     <div id="imageDiv"></div>
+
+    <div id="infoContainer" class="infoHide" hidden>
+      <span id="infoText"></span>
+    </div>
 
     <script src="./view_renderer.js"></script>
     <script src="./util.js"></script>
