@@ -21,6 +21,12 @@ window.addEventListener('DOMContentLoaded', () => {
         throw "gNowImgPath does not exist in gPicList, something error.";
 
     updateNowImage();
+
+    var metadata = loadMeta(gDirPath);
+    if(metadata.read)
+        switchToUnreadMenuItem();
+    else
+        switchToReadMenuItem();
 });
 
 // Window concerned
@@ -35,9 +41,19 @@ right_menu.append(new MenuItem({
     }
 }));
 right_menu.append(new MenuItem({
-    label: "Add bookmark",
+    label: "Add Bookmark",
     click: addBookmark
 }));
+var read_menu_item = new MenuItem({
+    label: "Mark Read",
+    click: markRead
+});
+var unread_menu_item = new MenuItem({
+    label: "Mark Unread",
+    click: markUnread
+});
+right_menu.append(read_menu_item);
+right_menu.append(unread_menu_item);
 window.addEventListener("contextmenu", function(e) {
     e.preventDefault();
     right_menu.popup({window: remote.getCurrentWindow()});
@@ -62,6 +78,16 @@ function updateImageDiv(img_ele) {
 
 function createFullscreenImg(img_path) {
     return createImg(img_path, $("imageDiv").clientHeight, $("imageDiv").clientWidth);
+}
+
+function switchToReadMenuItem() {
+    read_menu_item.enabled = true;
+    unread_menu_item.enabled = false;
+}
+
+function switchToUnreadMenuItem() {
+    unread_menu_item.enabled = true;
+    read_menu_item.enabled = false;
 }
 
 // Content management
@@ -99,6 +125,26 @@ function addBookmark() {
     updateInfo("添加书签：" + nowImgPath);
 }
 
+function updateRead(hasRead) {
+    // TODO Here we need a lock because metafile may be changed by several threads
+    var metadata = loadMeta(gDirPath);
+    metadata.read = hasRead;
+    saveMeta(gDirPath, metadata);
+}
+
+function markRead() {
+    updateRead(true);
+    switchToUnreadMenuItem();
+    updateInfo("标记为已读");
+}
+
+function markUnread() {
+    updateRead(false);
+    switchToReadMenuItem();
+    updateInfo("标记为未读");
+}
+
+// Utils
 function updateInfo(info_str) {
     showInfoAndUpdateInfoText($("infoContainer"), $("infoText"), info_str);
 }

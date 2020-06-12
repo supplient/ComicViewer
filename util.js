@@ -90,7 +90,8 @@ function getMetapath(dirpath) {
 
 /*
 metadata = {
-    bookmark: path of the bookmark picture
+    bookmark: string. path of the bookmark picture
+    read: boolean. flag for has read up
 }
 */
 

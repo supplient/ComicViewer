@@ -5,6 +5,9 @@ const {dialog, BrowserWindow, Menu, MenuItem} = remote;
 const fs = require("fs");
 const path = require("path");
 
+var gShowRead = false;
+var gNowDir;
+
 function selectDirDialog(callback) {
     dialog.showOpenDialog({ properties: ['openDirectory'] }).then((dialog_select) => {
         var dir_path = dialog_select.filePaths[0];
@@ -142,10 +145,17 @@ function changeNowDir(dir_path) {
     $("imageView").innerHTML = "";
     $("imageView").append(createUpDirItem(path.dirname(dir_path)));
 
+    gNowDir = dir_path;
+
     var dirs, pics;
     [dirs, pics] = getDirsAndPics(dir_path);
 
     for(var dir of dirs) {
+        if(!gShowRead) {
+            var metadata = loadMeta(dir);
+            if(metadata.read)
+                continue;
+        }
         var thumb = createDirItem(dir);
         $("dirView").append(thumb);
     }
@@ -200,6 +210,10 @@ window.addEventListener('DOMContentLoaded', () => {
             updateInfo("Yes");
         else
             updateInfo("No");
+    }
+    $("showRead").onclick = () => {
+        gShowRead = $("showRead").checked;
+        changeNowDir(gNowDir);
     }
 
     // changeNowDir("D:/theothers/ACG/COMIC/ComicViewer/test/root/%#+ &=A9御姉流)]ソラノシタデ(ヨスガノソラ)~");
