@@ -6,6 +6,7 @@ const fs = require("fs");
 const path = require("path");
 
 const READ_DIR = "(0";
+const FOLDER_THUMB_PATH = "folder.png";
 
 var gShowRead = false;
 var gNowDir;
@@ -28,7 +29,7 @@ function createThumbnail(filepath, is_dir) {
         var dirs, pics;
         [dirs, pics] = getDirsAndPics(filepath);
         if(pics.length == 0)
-            img_path = "folder.png";
+            img_path = FOLDER_THUMB_PATH;
         else
             img_path = pics[0];
     }
@@ -38,22 +39,24 @@ function createThumbnail(filepath, is_dir) {
     var thumb_img;
     thumb_img = createImg(img_path, THUMB_HEIGHT, THUMB_WIDTH);
     thumb_img.className = "thumb";
-    thumb_img.addEventListener("mouseenter", (ev) => {
-        var previewContainer = $("previewContainer");
-        previewContainer.innerHTML = "";
-        var preview = createImg(img_path, PREVIEW_HEIGHT, PREVIEW_WIDTH);
-        previewContainer.appendChild(preview);
-        previewContainer.hidden = false;
-    });
-    thumb_img.addEventListener("mousemove", (ev) => {
-        var previewContainer = $("previewContainer");
-        previewContainer.style.left = ev.x.toString() + "px";
-        previewContainer.style.top = ev.y.toString() + "px";
-    });
-    thumb_img.addEventListener("mouseleave", () => {
-        var previewContainer = $("previewContainer");
-        previewContainer.hidden = true;
-    });
+    if(img_path != FOLDER_THUMB_PATH) {
+        thumb_img.addEventListener("mouseenter", (ev) => {
+            var previewContainer = $("previewContainer");
+            previewContainer.innerHTML = "";
+            var preview = createImg(img_path, PREVIEW_HEIGHT, PREVIEW_WIDTH);
+            previewContainer.appendChild(preview);
+            previewContainer.hidden = false;
+        });
+        thumb_img.addEventListener("mousemove", (ev) => {
+            var previewContainer = $("previewContainer");
+            previewContainer.style.left = ev.x.toString() + "px";
+            previewContainer.style.top = ev.y.toString() + "px";
+        });
+        thumb_img.addEventListener("mouseleave", () => {
+            var previewContainer = $("previewContainer");
+            previewContainer.hidden = true;
+        });
+    }
 
     var div = document.createElement("div");
     div.className = "thumbContainer";
@@ -76,7 +79,7 @@ function createListItemDiv(filepath, is_dir) {
 function createUpDirItem(updirpath) {
     var div = document.createElement("div");
     div.className = "item";
-    div.appendChild(createThumbnail("folder.png"));
+    div.appendChild(createThumbnail(FOLDER_THUMB_PATH));
     var dirname = document.createElement("span");
     dirname.className = "itemText";
     dirname.innerText = "..";
