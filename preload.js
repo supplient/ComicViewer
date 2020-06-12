@@ -183,6 +183,18 @@ function switchToImageView() {
 
 function updateInfo(info_str) {
     $("infoText").innerText = info_str;
+
+    var infoContainer = $("infoContainer");
+    infoContainer.classList.add("infoShow");
+
+    infoContainer.addEventListener("transitionend", (ev) => {
+        console.log("transition end");
+        var nowOpacity = window.getComputedStyle(infoContainer).opacity;
+        if(nowOpacity == 1) {
+            if(infoContainer.classList.contains("infoShow"))
+                infoContainer.classList.remove("infoShow");
+        }
+    });
 }
 
 window.addEventListener('DOMContentLoaded', () => {
@@ -192,9 +204,11 @@ window.addEventListener('DOMContentLoaded', () => {
             changeNowDir(dir_path);
         });
     };
+    $("infoTest").onclick = () => {
+        updateInfo("INFOINFOINFOINFOINFOINFOINFOINFOINFOINFOINFOINFOINFOINFOINFOINFO");
+    };
 
     // changeNowDir("D:/theothers/ACG/COMIC/ComicViewer/test/root/%#+ &=A9御姉流)]ソラノシタデ(ヨスガノソラ)~");
     changeNowDir("D:/theothers\\ACG\\COMIC\\ComicViewer\\resources\\app\\test\\root");
     switchToDirView();
-    updateInfo("INFOINFOINFOINFOINFOINFOINFOINFOINFOINFOINFOINFOINFOINFOINFOINFO");
 })
