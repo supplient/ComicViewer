@@ -160,14 +160,14 @@ function createDirItem(dirpath) {
                     updateInfo("This folder has no pictures.");
                     return;
                 }
-                openImageViewWindow(pics[0]);
+                openComicWindow(pics[0]);
             },
         }));
         right_menu.append(new MenuItem({
             label: "From Bookmark",
             click: function() {
                 if("bookmark" in metadata)
-                    openImageViewWindow(metadata.bookmark);
+                    openComicWindow(metadata.bookmark);
             },
             enabled: "bookmark" in metadata
         }));
@@ -194,11 +194,11 @@ function createDirItem(dirpath) {
     return div;
 }
 
-function openImageViewWindow(filepath) {
+function openComicWindow(filepath) {
     const imgWindow = new BrowserWindow({
         fullscreen: true,
         webPreferences: {
-            preload: path.join(__dirname, 'view_preload.js'),
+            preload: path.join(__dirname, 'comic_preload.js'),
             enableRemoteModule: true,
             nodeIntegration: true,
             additionalArguments: [
@@ -207,7 +207,7 @@ function openImageViewWindow(filepath) {
         },
     });
     imgWindow.removeMenu();
-    imgWindow.loadFile('view.html');
+    imgWindow.loadFile('comic.html');
 
     if(remote.getGlobal("debug_flag"))
         imgWindow.webContents.openDevTools()
@@ -216,7 +216,7 @@ function openImageViewWindow(filepath) {
 function createPicItem(filepath) {
     var div = createListItemDiv(filepath, false);
     div.ondblclick = (ev) => {
-        openImageViewWindow(filepath);
+        openComicWindow(filepath);
     }
     return div;
 }
