@@ -83,6 +83,7 @@ function createThumb(filepath, is_dir) {
         thumbImg.addEventListener("mousemove", (ev) => {
             var previewContainer = $("previewContainer");
             // Calculate the proper position
+            // TODO
             var x = ev.x;
             var y = ev.y;
             var preview = previewContainer.children[0];
@@ -249,10 +250,11 @@ function updateInfo(info_str) {
     showInfoAndUpdateInfoText($("infoContainer"), $("infoText"), info_str);
 }
 
-function setRootDir(dir_path) {
-    gRootDir = dir_path;
-    $("rootDirPath").innerText = dir_path;
-    changeNowDir(dir_path);
+function setRootDir(dirpath) {
+    updateConfigItem("root", dirpath);
+    gRootDir = dirpath;
+    $("rootDirPath").innerText = dirpath;
+    changeNowDir(dirpath);
 }
 
 window.addEventListener('DOMContentLoaded', () => {
@@ -271,6 +273,7 @@ window.addEventListener('DOMContentLoaded', () => {
         var dirs, pics;
         [dirs, pics] = getDirsAndPicsSync(gNowDir);
 
+        // search read dirs
         var readDirs = [];
         for (const dir of dirs) {
             var metadata = loadMeta(dir);
@@ -304,7 +307,10 @@ window.addEventListener('DOMContentLoaded', () => {
         updateInfo("Clear the cache.");
     };
 
-    var root_dir = path.normalize("D:\\theothers\\ACG\\COMIC\\ComicViewer\\resources\\app\\test\\root");
-    setRootDir(root_dir);
+    var rootPath = path.normalize("test/root");
+    var configRootPath = getConfigItem("root");
+    if(configRootPath)
+        rootPath = configRootPath;
+    setRootDir(rootPath);
     switchToDirView();
 })

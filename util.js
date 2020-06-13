@@ -14,6 +14,7 @@ const THUMB_FILENAME = "comicviewerthumb.thumb";
 const PREVIEW_FILENAME = "comicviewerpreviewer.thumb";
 const READ_DIR = "(0";
 const FOLDER_THUMB_PATH = "folder.png";
+const CONFIG_PATH = "config.json";
 
 //
 // HTML concerned
@@ -239,4 +240,40 @@ function askForCheck(check_str, title) {
         return false;
     else
         throw "Error, invalid checkReply: " + checkReplay.toString();
+}
+
+//
+// Config concerned
+//
+/*
+config: {
+    root: last set root dir path
+}
+*/
+function loadConfig() {
+    var configdata = {};
+    if(fs.existsSync(CONFIG_PATH)) {
+        // Load if exists
+        var filedata = fs.readFileSync(CONFIG_PATH);
+        configdata = JSON.parse(filedata.toString());
+    }
+    return configdata;
+}
+
+function saveConfig(configdata) {
+    var configstr = JSON.stringify(configdata);
+    fs.writeFileSync(CONFIG_PATH, configstr);
+}
+
+function updateConfigItem(key, value) {
+    var config = loadConfig();
+    if(config[key] != value) {
+        config[key] = value;
+        saveConfig(config);
+    }
+}
+
+function getConfigItem(key) {
+    var config = loadConfig();
+    return config[key];
 }
