@@ -83,7 +83,6 @@ function createThumb(filepath, is_dir) {
         thumbImg.addEventListener("mousemove", (ev) => {
             var previewContainer = $("previewContainer");
             // Calculate the proper position
-            // TODO
             var x = ev.x;
             var y = ev.y;
             var preview = previewContainer.children[0];
@@ -91,10 +90,12 @@ function createThumb(filepath, is_dir) {
             var height = preview.height;
             var screenWidth = document.body.offsetWidth;
             var screenHeight = document.body.offsetHeight;
-            if(x+width-screenWidth > width-x)
+            if(x+width>screenWidth && x+width-screenWidth > width-x) // Fix left or right
                 x -= width;
-            if(y+height-screenHeight > height-y)
-                y-= height;
+            if(y+height>screenHeight) {
+                // Search best y
+                y = screenHeight-height;
+            } 
             // Follow the mouse
             previewContainer.style.left = x.toString() + "px";
             previewContainer.style.top = y.toString() + "px";
