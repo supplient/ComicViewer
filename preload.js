@@ -82,9 +82,21 @@ function createThumb(filepath, is_dir) {
         });
         thumbImg.addEventListener("mousemove", (ev) => {
             var previewContainer = $("previewContainer");
+            // Calculate the proper position
+            var x = ev.x;
+            var y = ev.y;
+            var preview = previewContainer.children[0];
+            var width = preview.width;
+            var height = preview.height;
+            var screenWidth = document.body.offsetWidth;
+            var screenHeight = document.body.offsetHeight;
+            if(x+width-screenWidth > width-x)
+                x -= width;
+            if(y+height-screenHeight > height-y)
+                y-= height;
             // Follow the mouse
-            previewContainer.style.left = ev.x.toString() + "px";
-            previewContainer.style.top = ev.y.toString() + "px";
+            previewContainer.style.left = x.toString() + "px";
+            previewContainer.style.top = y.toString() + "px";
         });
         thumbImg.addEventListener("mouseleave", () => {
             var previewContainer = $("previewContainer");
