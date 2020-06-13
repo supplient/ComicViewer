@@ -46,14 +46,14 @@ var unread_menu_item = new MenuItem({
     label: "Mark Unread",
     click: markUnread
 });
+right_menu.append(read_menu_item);
+right_menu.append(unread_menu_item);
 right_menu.append(new MenuItem({
     label: "Exit",
     click: function() {
         remote.getCurrentWindow().close();
     }
 }));
-right_menu.append(read_menu_item);
-right_menu.append(unread_menu_item);
 window.addEventListener("contextmenu", function(e) {
     e.preventDefault();
     right_menu.popup({window: remote.getCurrentWindow()});

@@ -10,14 +10,22 @@
     <link rel="stylesheet" type="text/css" href="util.css" />
   </head>
   <body>
-    <h1>This is the home page.</h1>
-
-    <button id="dirGetTest">dirgettest</button>
-    <span id="rootDirPath">rootDirPath</span>
-    <button id="switchViewBtn">Switch</button>
-    <input id="showRead" type="checkbox">
-    <button id="moveToReadBtn">MoveToRead</button>
-    <button id="clearCacheBtn">clearCache</button>
+    <div id="controlPanel">
+      <div id="rootDirPanel">
+        <span>根目录：</span>
+        <span id="rootDirPath">rootDirPath</span>
+        <button id="rootDirSetBtn" title="选择一个新的文件夹作为根目录">设置根目录</button>
+      </div>
+      <div id="viewPanel">
+        <button id="switchViewBtn">Switch</button>
+        <span>显示已读</span>
+        <input id="showRead" type="checkbox" title="是否显示标记为已读的漫画以及用于存放已读漫画的目录">
+      </div>
+      <div id="filePanel">
+        <button id="moveToReadBtn" title="将标记为已读的漫画全部移动到用于存放已读漫画的目录中">移动已读</button>
+        <button id="clearCacheBtn" title="删除该目录下所有漫画的缩略图、浏览图">清除缓存</button>
+      </div>
+    </div>
 
     <div id="viewDiv">
       <div id="dirView"></div>

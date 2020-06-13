@@ -243,7 +243,8 @@ function switchToDirView() {
     $("imageView").hidden = true;
     $("dirView").hidden = false;
 
-    $("switchViewBtn").innerText = "Switch To ImageView";
+    $("switchViewBtn").innerText = "切换到图片视图";
+    $("switchViewBtn").title = "在图片视图下只会显示图片，而不显示文件夹";
     $("switchViewBtn").onclick = () => {
         switchToImageView();
     }
@@ -253,7 +254,8 @@ function switchToImageView() {
     $("imageView").hidden = false;
     $("dirView").hidden = true;
 
-    $("switchViewBtn").innerText = "Switch To DirView";
+    $("switchViewBtn").innerText = "切换到文件夹视图";
+    $("switchViewBtn").title = "在文件夹视图下只会显示文件夹，而不显示图片";
     $("switchViewBtn").onclick = () => {
         switchToDirView();
     }
@@ -271,7 +273,7 @@ function setRootDir(dirpath) {
 }
 
 window.addEventListener('DOMContentLoaded', () => {
-    $("dirGetTest").onclick = () => {
+    $("rootDirSetBtn").onclick = () => {
         selectDirDialog((dir_path) => {
             if(dir_path)
                 setRootDir(dir_path);
@@ -283,6 +285,8 @@ window.addEventListener('DOMContentLoaded', () => {
     };
     $("moveToReadBtn").onclick = () => {
         var nowReadDir = path.join(gNowDir, READ_DIR);
+        if(!fs.existsSync(nowReadDir))
+            fs.mkdirSync(nowReadDir);
         var dirs, pics;
         [dirs, pics] = getDirsAndPicsSync(gNowDir);
 
