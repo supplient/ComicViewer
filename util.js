@@ -181,7 +181,7 @@ function saveCanvas(canvas, filepath, quality) {
 }
 
 function saveThumb(dirpath, canvas) {
-    saveCanvas(canvas, getThumbPath(dirpath), 0.6);
+    saveCanvas(canvas, getThumbPath(dirpath), 1.0);
 }
 
 /*
@@ -199,7 +199,7 @@ function checkPreviewExists(dirpath) {
 }
 
 function savePreview(dirpath, canvas) {
-    saveCanvas(canvas, getPreviewPath(dirpath), 0.7);
+    saveCanvas(canvas, getPreviewPath(dirpath), 1.0);
 }
 
 //

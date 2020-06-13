@@ -246,7 +246,8 @@ function setRootDir(dir_path) {
 window.addEventListener('DOMContentLoaded', () => {
     $("dirGetTest").onclick = () => {
         selectDirDialog((dir_path) => {
-            setRootDir(dir_path);
+            if(dir_path)
+                setRootDir(dir_path);
         });
     };
     $("showRead").onclick = () => {
