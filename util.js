@@ -15,6 +15,7 @@ const PREVIEW_FILENAME = "comicviewerpreviewer.thumb";
 const READ_DIR = "(0";
 const FOLDER_THUMB_PATH = "folder.png";
 const CONFIG_PATH = "config.json";
+const DEBUG_CONFIG_PATH = "debug_config.json";
 
 //
 // HTML concerned
@@ -250,11 +251,18 @@ config: {
     root: last set root dir path
 }
 */
+function getConfigPath() {
+    if(remote.getGlobal("debug_flag"))
+        return DEBUG_CONFIG_PATH;
+    else
+        return CONFIG_PATH;
+}
+
 function loadConfig() {
     var configdata = {};
-    if(fs.existsSync(CONFIG_PATH)) {
+    if(fs.existsSync(getConfigPath())) {
         // Load if exists
-        var filedata = fs.readFileSync(CONFIG_PATH);
+        var filedata = fs.readFileSync(getConfigPath());
         configdata = JSON.parse(filedata.toString());
     }
     return configdata;
@@ -262,7 +270,7 @@ function loadConfig() {
 
 function saveConfig(configdata) {
     var configstr = JSON.stringify(configdata);
-    fs.writeFileSync(CONFIG_PATH, configstr);
+    fs.writeFileSync(getConfigPath(), configstr);
 }
 
 function updateConfigItem(key, value) {
