@@ -25,24 +25,18 @@ function $(id) {
 //
 
 function createImg(img_path, max_height, max_width, callback) {
-    var canvas = document.createElement("canvas");
-    canvas.height = max_height;
-    canvas.width = max_width;
-    var ctx = canvas.getContext("2d");
-
     var img = new Image(max_width, max_height);
     img.src = urlEscape(img_path);
     img.onload = ()=>{
         var nat_height = img.naturalHeight;
         var nat_width = img.naturalWidth;
         var tmp = adjustWidthHeight(nat_width, nat_height, max_width, max_height);
-        var dwidth = tmp[0];
-        var dheight = tmp[1];
-        ctx.drawImage(img, 0, 0, dwidth, dheight);
+        img.width = tmp[0];
+        img.height = tmp[1];
         if(callback)
-            callback(canvas, img);
+            callback(img);
     };
-    return canvas;
+    return img;
 }
 
 function adjustWidthHeight(nat_width, nat_height, max_width, max_height) {
