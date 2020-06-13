@@ -5,9 +5,6 @@ const {dialog, BrowserWindow, Menu, MenuItem} = remote;
 const fs = require("fs");
 const path = require("path");
 
-const READ_DIR = "(0";
-const FOLDER_THUMB_PATH = "folder.png";
-
 var gShowRead = false;
 var gRootDir;
 var gNowDir;
@@ -25,6 +22,7 @@ function createThumbnail(filepath, is_dir) {
     const PREVIEW_HEIGHT = 500;
     const PREVIEW_WIDTH = 500;
 
+    // Check thumb's path
     var img_path;
     if(is_dir) {
         var dirs, pics;
@@ -37,8 +35,11 @@ function createThumbnail(filepath, is_dir) {
     else 
         img_path = filepath;
 
+    // Load thumb
     var thumb_img;
     thumb_img = createImg(img_path, THUMB_HEIGHT, THUMB_WIDTH);
+
+    // Set thumb class & event listeners
     thumb_img.className = "thumb";
     if(img_path != FOLDER_THUMB_PATH) {
         thumb_img.addEventListener("mouseenter", (ev) => {
@@ -59,6 +60,7 @@ function createThumbnail(filepath, is_dir) {
         });
     }
 
+    // Add to document
     var div = document.createElement("div");
     div.className = "thumbContainer";
     div.appendChild(thumb_img);

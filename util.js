@@ -3,6 +3,80 @@ const {dialog} = remote;
 const fs = require("fs");
 const path = require("path");
 
+//
+// Constant configs
+//
+
+const META_FILENAME = "comicviewermeta.json";
+const THUMB_FILENAME = "comicviewerthumb.json";
+const READ_DIR = "(0";
+const FOLDER_THUMB_PATH = "folder.png";
+
+//
+// HTML concerned
+//
+
+function $(id) {
+    return document.getElementById(id);
+}
+
+//
+// Image concerned
+//
+
+function createImg(img_path, max_height, max_width, callback) {
+    var canvas = document.createElement("canvas");
+    canvas.height = max_height;
+    canvas.width = max_width;
+    var ctx = canvas.getContext("2d");
+
+    var img = new Image(max_width, max_height);
+    img.src = urlEscape(img_path);
+    img.onload = ()=>{
+        var nat_height = img.naturalHeight;
+        var nat_width = img.naturalWidth;
+        var tmp = adjustWidthHeight(nat_width, nat_height, max_width, max_height);
+        var dwidth = tmp[0];
+        var dheight = tmp[1];
+        ctx.drawImage(img, 0, 0, dwidth, dheight);
+        if(callback)
+            callback(canvas, img);
+    };
+    return canvas;
+}
+
+function adjustWidthHeight(nat_width, nat_height, max_width, max_height) {
+    var max_ratio = max_height / max_width;
+    var width, height;
+    if(nat_height <= max_height && nat_width <= max_width)
+        return [nat_width, nat_height];
+
+    var nat_ratio = nat_height / nat_width;
+    if(nat_ratio > max_ratio) {
+        height = max_height;
+        width = max_height / nat_ratio;
+    }
+    else {
+        width = max_width;
+        height = max_width * nat_ratio;
+    }
+    return [width, height];
+}
+
+//
+// Path concerned
+//
+
+function urlEscape(url) {
+    url = url.replace("%", "%25");
+    url = url.replace("+", "%2B");
+    url = url.replace(" ", "%20");
+    url = url.replace("#", "%23");
+    url = url.replace("&", "%26");
+    url = url.replace("=", "%3D");
+    return url;
+}
+
 function isDirectory(filepath) {
     var stat = fs.statSync(filepath);
     return stat.isDirectory();
@@ -37,56 +111,9 @@ function getDirsAndPics(dir_path) {
     return [dirs, pics];
 }
 
-function $(id) {
-    return document.getElementById(id);
-}
-
-function createImg(img_path, max_height, max_width, callback) {
-    var img = new Image(max_width, max_height);
-    img.src = urlEscape(img_path);
-    img.onload = ()=>{
-        var nat_height = img.naturalHeight;
-        var nat_width = img.naturalWidth;
-        var tmp = adjustWidthHeight(nat_width, nat_height, max_width, max_height);
-        img.width = tmp[0];
-        img.height = tmp[1];
-        if(callback)
-            callback(img);
-    };
-    return img;
-}
-
-function adjustWidthHeight(nat_width, nat_height, max_width, max_height) {
-    var max_ratio = max_height / max_width;
-    var width, height;
-    if(nat_height <= max_height && nat_width <= max_width)
-        return [nat_width, nat_height];
-
-    var nat_ratio = nat_height / nat_width;
-    if(nat_ratio > max_ratio) {
-        height = max_height;
-        width = max_height / nat_ratio;
-    }
-    else {
-        width = max_width;
-        height = max_width * nat_ratio;
-    }
-    return [width, height];
-}
-
-function urlEscape(url) {
-    url = url.replace("%", "%25");
-    url = url.replace("+", "%2B");
-    url = url.replace(" ", "%20");
-    url = url.replace("#", "%23");
-    url = url.replace("&", "%26");
-    url = url.replace("=", "%3D");
-    return url;
-}
-
-function getMetapath(dirpath) {
-    return path.join(dirpath, "meta.comicviewermeta"); 
-}
+//
+// Metadata concerned
+//
 
 /*
 metadata = {
@@ -94,6 +121,9 @@ metadata = {
     read: boolean. flag for has read up
 }
 */
+function getMetapath(dirpath) {
+    return path.join(dirpath, "comicviewermeta.json"); 
+}
 
 function loadMeta(dirpath) {
     var metapath = getMetapath(dirpath);
@@ -112,6 +142,32 @@ function saveMeta(dirpath, metadata) {
     fs.writeFileSync(metapath, metastr);
 }
 
+/* Desprecated
+    Since we need a full image for the preview.
+
+function getThumbPath(dirpath) {
+    return path.join(dirpath, "comicviewerthumb.thumb");
+}
+
+function checkThumbExists(dirpath) {
+    var thumbpath = getThumbPath(dirpath);
+    return fs.existsSync(thumbpath);
+}
+
+function saveThumb(dirpath, canvas) {
+    var data = canvas.toDataURL();
+    data = data.replace(/^data:image\/\w+;base64,/, "");
+    var buf = new Buffer(data, "base64");
+    fs.writeFile(getThumbPath(dirpath), buf, (err) => {
+        if(err)
+            throw err;
+    });
+}
+*/
+
+//
+// Infomation concerned
+//
 function showInfoAndUpdateInfoText(container_obj, text_obj, info_text) {
     text_obj.innerText = info_text;
 
