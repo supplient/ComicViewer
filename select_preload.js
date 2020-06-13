@@ -5,9 +5,17 @@ const {dialog, BrowserWindow, Menu, MenuItem} = remote;
 const fs = require("fs");
 const path = require("path");
 
+//
+// Global(in this render) variables
+//
+
 var gShowRead = false;
 var gRootDir;
 var gNowDir;
+
+//
+// Outside communication
+//
 
 function selectDirDialog(callback) {
     dialog.showOpenDialog({ properties: ['openDirectory'] }).then((dialog_select) => {
@@ -15,6 +23,97 @@ function selectDirDialog(callback) {
         callback(dir_path);
     })
 }
+
+function openComicWindow(filepath) {
+    const imgWindow = new BrowserWindow({
+        fullscreen: true,
+        webPreferences: {
+            preload: path.join(__dirname, 'comic_preload.js'),
+            enableRemoteModule: true,
+            nodeIntegration: true,
+            additionalArguments: [
+                filepath,
+            ],
+        },
+    });
+    imgWindow.removeMenu();
+    imgWindow.loadFile('comic.html');
+
+    if(remote.getGlobal("debug_flag"))
+        imgWindow.webContents.openDevTools()
+}
+
+//
+// Initialize
+//
+
+window.addEventListener('DOMContentLoaded', () => {
+    // Bind listenser to DOM
+    $("rootDirSetBtn").onclick = () => {
+        selectDirDialog((dir_path) => {
+            if(dir_path)
+                setRootDir(dir_path);
+        });
+    };
+
+    $("showRead").onclick = () => {
+        gShowRead = $("showRead").checked;
+        changeNowDir(gNowDir);
+    };
+
+    $("moveToReadBtn").onclick = () => {
+        var nowReadDir = path.join(gNowDir, READ_DIR);
+        if(!fs.existsSync(nowReadDir))
+            fs.mkdirSync(nowReadDir);
+        var dirs, pics;
+        [dirs, pics] = getDirsAndPicsSync(gNowDir);
+
+        // search read dirs
+        var readDirs = [];
+        for (const dir of dirs) {
+            var metadata = loadMeta(dir);
+            if(!metadata.read)
+                continue;
+            readDirs.push(dir);
+        }
+
+        // move to read dir
+        var movedCount = 0;
+        for (const dir of readDirs) {
+            var newPath = path.join(nowReadDir, path.basename(dir));
+            fs.rename(dir, newPath, () => {
+                movedCount++;
+                if(movedCount >= readDirs.length)
+                    updateInfo("Moved " + movedCount.toString() + " directories to " + READ_DIR);
+            });
+        }
+        if(gShowRead)
+            changeNowDir(gNowDir);
+    };
+
+    $("clearCacheBtn").onclick = (ev) => {
+        var dirs, pics;
+        [dirs, pics] = getDirsAndPicsSync(gNowDir);
+        for (const dir of dirs) {
+            if(checkThumbExists(dir))
+                fs.unlinkSync(getThumbPath(dir));
+            if(checkPreviewExists(dir))
+                fs.unlinkSync(getPreviewPath(dir));
+        }
+        updateInfo("Clear the cache.");
+    };
+
+    // Set root dir
+    var rootPath = path.normalize("test/root");
+    var configRootPath = getConfigItem("root");
+    if(configRootPath)
+        rootPath = configRootPath;
+    setRootDir(rootPath);
+})
+
+//
+// HTML Element Create
+//
 
 function createThumb(filepath, is_dir) {
     const THUMB_HEIGHT = 100;
@@ -70,6 +169,8 @@ function createThumb(filepath, is_dir) {
             if(fs.existsSync(previewPath)) {
                 // Since the preview draw and the previewpath get do not happen at the same time
                 // We should have a double check
+
+                // Create Preview
                 var preview = createImg(previewPath, PREVIEW_HEIGHT, PREVIEW_WIDTH, (canvas, img) => {
                     // If preview not exists, create it
                     if(is_dir && !checkPreviewExists(filepath))
@@ -194,25 +295,6 @@ function createDirItem(dirpath) {
     return div;
 }
 
-function openComicWindow(filepath) {
-    const imgWindow = new BrowserWindow({
-        fullscreen: true,
-        webPreferences: {
-            preload: path.join(__dirname, 'comic_preload.js'),
-            enableRemoteModule: true,
-            nodeIntegration: true,
-            additionalArguments: [
-                filepath,
-            ],
-        },
-    });
-    imgWindow.removeMenu();
-    imgWindow.loadFile('comic.html');
-
-    if(remote.getGlobal("debug_flag"))
-        imgWindow.webContents.openDevTools()
-}
-
 function createPicItem(filepath) {
     var div = createListItemDiv(filepath, false);
     div.ondblclick = (ev) => {
@@ -220,6 +302,10 @@ function createPicItem(filepath) {
     }
     return div;
 }
+
+//
+// Content Manage
+//
 
 function changeNowDir(dir_path) {
     gNowDir = dir_path;
@@ -289,63 +375,3 @@ function setRootDir(dirpath) {
     $("rootDirPath").innerText = dirpath;
     changeNowDir(dirpath);
 }
-
-window.addEventListener('DOMContentLoaded', () => {
-    $("rootDirSetBtn").onclick = () => {
-        selectDirDialog((dir_path) => {
-            if(dir_path)
-                setRootDir(dir_path);
-        });
-    };
-    $("showRead").onclick = () => {
-        gShowRead = $("showRead").checked;
-        changeNowDir(gNowDir);
-    };
-    $("moveToReadBtn").onclick = () => {
-        var nowReadDir = path.join(gNowDir, READ_DIR);
-        if(!fs.existsSync(nowReadDir))
-            fs.mkdirSync(nowReadDir);
-        var dirs, pics;
-        [dirs, pics] = getDirsAndPicsSync(gNowDir);
-
-        // search read dirs
-        var readDirs = [];
-        for (const dir of dirs) {
-            var metadata = loadMeta(dir);
-            if(!metadata.read)
-                continue;
-            readDirs.push(dir);
-        }
-
-        // move to read dir
-        var movedCount = 0;
-        for (const dir of readDirs) {
-            var newPath = path.join(nowReadDir, path.basename(dir));
-            fs.rename(dir, newPath, () => {
-                movedCount++;
-                if(movedCount >= readDirs.length)
-                    updateInfo("Moved " + movedCount.toString() + " directories to " + READ_DIR);
-            });
-        }
-        if(gShowRead)
-            changeNowDir(gNowDir);
-    };
-    $("clearCacheBtn").onclick = (ev) => {
-        var dirs, pics;
-        [dirs, pics] = getDirsAndPicsSync(gNowDir);
-        for (const dir of dirs) {
-            if(checkThumbExists(dir))
-                fs.unlinkSync(getThumbPath(dir));
-            if(checkPreviewExists(dir))
-                fs.unlinkSync(getPreviewPath(dir));
-        }
-        updateInfo("Clear the cache.");
-    };
-
-    var rootPath = path.normalize("test/root");
-    var configRootPath = getConfigItem("root");
-    if(configRootPath)
-        rootPath = configRootPath;
-    setRootDir(rootPath);
-    switchToDirView();
-})
