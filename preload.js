@@ -16,46 +16,79 @@ function selectDirDialog(callback) {
     })
 }
 
-function createThumbnail(filepath, is_dir) {
+function createThumb(filepath, is_dir) {
     const THUMB_HEIGHT = 100;
     const THUMB_WIDTH = 100;
     const PREVIEW_HEIGHT = 500;
     const PREVIEW_WIDTH = 500;
 
-    // Check thumb's path
-    var img_path;
+    var thumbPath=null, previewPath=null;
+
+    // Check thumb & preview path
     if(is_dir) {
-        var dirs, pics;
-        [dirs, pics] = getDirsAndPics(filepath);
-        if(pics.length == 0)
-            img_path = FOLDER_THUMB_PATH;
-        else
-            img_path = pics[0];
+        if(checkThumbExists(filepath))
+            thumbPath = getThumbPath(filepath);
+        if(checkPreviewExists(filepath))
+            previewPath = getPreviewPath(filepath);
+
+        if(!thumbPath || !previewPath) {
+            var firstPic = getFirstPicSync(filepath);
+            if(firstPic) {
+                if(!thumbPath)
+                    thumbPath = firstPic;
+                if(!previewPath)
+                    previewPath = firstPic;
+            }
+            else {
+                if(!thumbPath)
+                    thumbPath = FOLDER_THUMB_PATH;
+            }
+        }
     }
-    else 
-        img_path = filepath;
+    else {
+        thumbPath = filepath;
+        if(filepath != FOLDER_THUMB_PATH)
+            previewPath = filepath;
+    }
 
     // Load thumb
-    var thumb_img;
-    thumb_img = createImg(img_path, THUMB_HEIGHT, THUMB_WIDTH);
+    var thumbImg;
+    thumbImg = createImg(thumbPath, THUMB_HEIGHT, THUMB_WIDTH, (canvas, img) => {
+        // If thumb not exists, create it.
+        if(is_dir && !checkThumbExists(filepath))
+            saveThumb(filepath, canvas);
+    });
 
     // Set thumb class & event listeners
-    thumb_img.className = "thumb";
-    if(img_path != FOLDER_THUMB_PATH) {
-        thumb_img.addEventListener("mouseenter", (ev) => {
+    thumbImg.className = "thumb";
+    if(previewPath) {
+        thumbImg.addEventListener("mouseenter", (ev) => {
             var previewContainer = $("previewContainer");
+            // Clear
             previewContainer.innerHTML = "";
-            var preview = createImg(img_path, PREVIEW_HEIGHT, PREVIEW_WIDTH);
-            previewContainer.appendChild(preview);
-            previewContainer.hidden = false;
+            // Load preview
+            if(fs.existsSync(previewPath)) {
+                // Since the preview draw and the previewpath get do not happen at the same time
+                // We should have a double check
+                var preview = createImg(previewPath, PREVIEW_HEIGHT, PREVIEW_WIDTH, (canvas, img) => {
+                    // If preview not exists, create it
+                    if(is_dir && !checkPreviewExists(filepath))
+                        savePreview(filepath, canvas);
+                });
+                // Add to document
+                previewContainer.appendChild(preview);
+                previewContainer.hidden = false;
+            }
         });
-        thumb_img.addEventListener("mousemove", (ev) => {
+        thumbImg.addEventListener("mousemove", (ev) => {
             var previewContainer = $("previewContainer");
+            // Follow the mouse
             previewContainer.style.left = ev.x.toString() + "px";
             previewContainer.style.top = ev.y.toString() + "px";
         });
-        thumb_img.addEventListener("mouseleave", () => {
+        thumbImg.addEventListener("mouseleave", () => {
             var previewContainer = $("previewContainer");
+            // Hide if mouse move out
             previewContainer.hidden = true;
         });
     }
@@ -63,14 +96,14 @@ function createThumbnail(filepath, is_dir) {
     // Add to document
     var div = document.createElement("div");
     div.className = "thumbContainer";
-    div.appendChild(thumb_img);
+    div.appendChild(thumbImg);
     return div;
 }
 
 function createListItemDiv(filepath, is_dir) {
     var div = document.createElement("div");
     div.className = "item";
-    div.appendChild(createThumbnail(filepath, is_dir));
+    div.appendChild(createThumb(filepath, is_dir));
     var dirname = document.createElement("span");
     dirname.className = "itemText";
     dirname.innerText = path.basename(filepath);
@@ -82,7 +115,7 @@ function createListItemDiv(filepath, is_dir) {
 function createUpDirItem(updirpath) {
     var div = document.createElement("div");
     div.className = "item";
-    div.appendChild(createThumbnail(FOLDER_THUMB_PATH));
+    div.appendChild(createThumb(FOLDER_THUMB_PATH));
     var dirname = document.createElement("span");
     dirname.className = "itemText";
     dirname.innerText = "..";
@@ -155,7 +188,7 @@ function changeNowDir(dir_path) {
     }
 
     var dirs, pics;
-    [dirs, pics] = getDirsAndPics(dir_path);
+    [dirs, pics] = getDirsAndPicsSync(dir_path);
 
     for(var dir of dirs) {
         if(!gShowRead) {
@@ -223,7 +256,7 @@ window.addEventListener('DOMContentLoaded', () => {
     $("moveToReadBtn").onclick = () => {
         var nowReadDir = path.join(gNowDir, READ_DIR);
         var dirs, pics;
-        [dirs, pics] = getDirsAndPics(gNowDir);
+        [dirs, pics] = getDirsAndPicsSync(gNowDir);
 
         var readDirs = [];
         for (const dir of dirs) {
@@ -245,6 +278,17 @@ window.addEventListener('DOMContentLoaded', () => {
         }
         if(gShowRead)
             changeNowDir(gNowDir);
+    };
+    $("clearCacheBtn").onclick = (ev) => {
+        var dirs, pics;
+        [dirs, pics] = getDirsAndPicsSync(gNowDir);
+        for (const dir of dirs) {
+            if(checkThumbExists(dir))
+                fs.unlinkSync(getThumbPath(dir));
+            if(checkPreviewExists(dir))
+                fs.unlinkSync(getPreviewPath(dir));
+        }
+        updateInfo("Clear the cache.");
     };
 
     var root_dir = path.normalize("D:\\theothers\\ACG\\COMIC\\ComicViewer\\resources\\app\\test\\root");

@@ -2,13 +2,16 @@ const {remote} = require("electron");
 const {dialog} = remote;
 const fs = require("fs");
 const path = require("path");
+const { dir } = require("console");
+const { getPriority } = require("os");
 
 //
 // Constant configs
 //
 
 const META_FILENAME = "comicviewermeta.json";
-const THUMB_FILENAME = "comicviewerthumb.json";
+const THUMB_FILENAME = "comicviewerthumb.thumb";
+const PREVIEW_FILENAME = "comicviewerpreviewer.thumb";
 const READ_DIR = "(0";
 const FOLDER_THUMB_PATH = "folder.png";
 
@@ -25,18 +28,28 @@ function $(id) {
 //
 
 function createImg(img_path, max_height, max_width, callback) {
+    var canvas = document.createElement("canvas");
+    canvas.width = max_width;
+    canvas.height = max_height;
+    var ctx = canvas.getContext("2d");
+    ctx.fillStyle = "#fff";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
     var img = new Image(max_width, max_height);
     img.src = urlEscape(img_path);
     img.onload = ()=>{
         var nat_height = img.naturalHeight;
         var nat_width = img.naturalWidth;
         var tmp = adjustWidthHeight(nat_width, nat_height, max_width, max_height);
-        img.width = tmp[0];
-        img.height = tmp[1];
+        var dwidth = tmp[0];
+        var dheight = tmp[1];
+        canvas.width = dwidth;
+        canvas.height = dheight;
+        ctx.drawImage(img, 0, 0, dwidth, dheight); // TODO draw in center
         if(callback)
-            callback(img);
+            callback(canvas, img);
     };
-    return img;
+    return canvas;
 }
 
 function adjustWidthHeight(nat_width, nat_height, max_width, max_height) {
@@ -88,21 +101,28 @@ function isPicture(filepath) {
     return false;
 }
 
-function getDirsAndPics(dir_path) {
-    var allpaths = fs.readdirSync(dir_path);
+function getDirsAndPicsSync(dirpath) {
+    var alldirents = fs.readdirSync(dirpath, {withFileTypes:true});
     var dirs = [];
     var pics = [];
-    for(var filepath of allpaths) {
-        filepath = path.join(dir_path, filepath);
-        
-        if(isDirectory(filepath))
+    for(var dirent of alldirents) {
+        var filepath = path.join(dirpath, dirent.name);
+        if(dirent.isDirectory())
             dirs.push(filepath);
-        else if(isPicture(filepath))
+        else if(isPicture(dirent.name))
             pics.push(filepath);
-        else
-            continue;
     }
     return [dirs, pics];
+}
+
+function getFirstPicSync(dirpath) {
+    var alldirents = fs.readdirSync(dirpath, {withFileTypes:true});
+    for(var dirent of alldirents) {
+        if(isPicture(dirent.name)) {
+            var filepath = path.join(dirpath, dirent.name);
+            return filepath;
+        }
+    }
 }
 
 //
@@ -116,7 +136,7 @@ metadata = {
 }
 */
 function getMetapath(dirpath) {
-    return path.join(dirpath, "comicviewermeta.json"); 
+    return path.join(dirpath, META_FILENAME); 
 }
 
 function loadMeta(dirpath) {
@@ -136,11 +156,13 @@ function saveMeta(dirpath, metadata) {
     fs.writeFileSync(metapath, metastr);
 }
 
-/* Desprecated
-    Since we need a full image for the preview.
+/*
+thumb
+    just a compressed jpg
+*/
 
 function getThumbPath(dirpath) {
-    return path.join(dirpath, "comicviewerthumb.thumb");
+    return path.join(dirpath, THUMB_FILENAME);
 }
 
 function checkThumbExists(dirpath) {
@@ -148,16 +170,37 @@ function checkThumbExists(dirpath) {
     return fs.existsSync(thumbpath);
 }
 
-function saveThumb(dirpath, canvas) {
-    var data = canvas.toDataURL();
+function saveCanvas(canvas, filepath, quality) {
+    var data = canvas.toDataURL("image/jpeg", quality);
     data = data.replace(/^data:image\/\w+;base64,/, "");
     var buf = new Buffer(data, "base64");
-    fs.writeFile(getThumbPath(dirpath), buf, (err) => {
+    fs.writeFile(filepath, buf, (err) => {
         if(err)
             throw err;
     });
 }
+
+function saveThumb(dirpath, canvas) {
+    saveCanvas(canvas, getThumbPath(dirpath), 0.6);
+}
+
+/*
+preview
+    just a compressed jpg
 */
+
+function getPreviewPath(dirpath) {
+    return path.join(dirpath, PREVIEW_FILENAME);
+}
+
+function checkPreviewExists(dirpath) {
+    var previewpath = getPreviewPath(dirpath);
+    return fs.existsSync(previewpath);
+}
+
+function savePreview(dirpath, canvas) {
+    saveCanvas(canvas, getPreviewPath(dirpath), 0.7);
+}
 
 //
 // Infomation concerned

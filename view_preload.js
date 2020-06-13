@@ -14,7 +14,7 @@ window.addEventListener('DOMContentLoaded', () => {
     var img_path = args[0];
 
     gDirPath = path.dirname(img_path);
-    var tmp = getDirsAndPics(gDirPath);
+    var tmp = getDirsAndPicsSync(gDirPath);
     gPicList = tmp[1];
     gNowIndex = gPicList.indexOf(img_path);
     if(gNowIndex == -1)
@@ -35,12 +35,6 @@ window.addEventListener("resize", updateNowImage);
 // Build right menu
 const right_menu = new Menu();
 right_menu.append(new MenuItem({
-    label: "Exit",
-    click: function() {
-        remote.getCurrentWindow().close();
-    }
-}));
-right_menu.append(new MenuItem({
     label: "Add Bookmark",
     click: addBookmark
 }));
@@ -52,6 +46,12 @@ var unread_menu_item = new MenuItem({
     label: "Mark Unread",
     click: markUnread
 });
+right_menu.append(new MenuItem({
+    label: "Exit",
+    click: function() {
+        remote.getCurrentWindow().close();
+    }
+}));
 right_menu.append(read_menu_item);
 right_menu.append(unread_menu_item);
 window.addEventListener("contextmenu", function(e) {
