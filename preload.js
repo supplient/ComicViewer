@@ -152,6 +152,18 @@ function createDirItem(dirpath) {
         var metadata = loadMeta(dirpath);
         const right_menu = new Menu();
         right_menu.append(new MenuItem({
+            label: "From Beginning",
+            click: function() {
+                var dirs, pics;
+                [dirs, pics] = getDirsAndPicsSync(dirpath);
+                if(pics.length == 0) {
+                    updateInfo("This folder has no pictures.");
+                    return;
+                }
+                openImageViewWindow(pics[0]);
+            },
+        }));
+        right_menu.append(new MenuItem({
             label: "From Bookmark",
             click: function() {
                 if("bookmark" in metadata)
