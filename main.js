@@ -11,7 +11,7 @@ function createWindow () {
     height: 600,
     title: "ComicViewer",
     webPreferences: {
-      preload: path.join(__dirname, 'preload.js'),
+      preload: path.join(__dirname, 'select_preload.js'),
       nodeIntegration: true,
       enableRemoteModule: true
     }
@@ -20,7 +20,7 @@ function createWindow () {
   mainWindow.removeMenu();
 
   // and load the index.html of the app.
-  mainWindow.loadFile('index.html')
+  mainWindow.loadFile('select.html')
   mainWindow.maximize();
 
   // Load command args
