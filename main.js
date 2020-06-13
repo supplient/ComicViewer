@@ -20,9 +20,14 @@ function createWindow () {
   // and load the index.html of the app.
   mainWindow.loadFile('index.html')
 
+  // Load command args
+  if(process.argv.find((value) => {return value=="--debug"}))
+    global.debug_flag = true;
+
   // Open the DevTools.
   if(global.debug_flag)
     mainWindow.webContents.openDevTools()
+
 }
 
 // This method will be called when Electron has finished
