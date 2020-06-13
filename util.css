@@ -1,6 +1,6 @@
 .infoHide {
     visibility: hidden;
-    transition: opacity 1s ease 2s, visibility 4s;
+    transition: opacity 1s ease 2s, visibility 3s;
     opacity: 0;
 }
 

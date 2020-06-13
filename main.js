@@ -9,7 +9,6 @@ function createWindow () {
   const mainWindow = new BrowserWindow({
     width: 800,
     height: 600,
-    title: "ComicViewer",
     webPreferences: {
       preload: path.join(__dirname, 'select_preload.js'),
       nodeIntegration: true,

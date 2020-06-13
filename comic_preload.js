@@ -35,6 +35,10 @@ window.addEventListener("resize", updateNowImage);
 // Build right menu
 const right_menu = new Menu();
 right_menu.append(new MenuItem({
+    label: "Previous",
+    click: prevImage
+}));
+right_menu.append(new MenuItem({
     label: "Add Bookmark",
     click: addBookmark
 }));
@@ -67,6 +71,18 @@ window.addEventListener("mouseup", function(e) {
         // Left button clicked
         nextImage();
     }
+});
+window.addEventListener("wheel", (ev) => {
+    if(ev.deltaY>0)
+        prevImage();
+    else
+        nextImage();
+});
+window.addEventListener("keyup", (ev) => {
+    if(ev.key == "ArrowUp")
+        prevImage();
+    else if(ev.key == "ArrowDown")
+        nextImage();
 })
 
 // HTML element control
@@ -97,10 +113,22 @@ function updateNowImage() {
     updateImageDiv(img_ele);
 }
 
+function prevImage() {
+    gNowIndex--;
+    if(gNowIndex < 0) {
+        updateInfo("已到第一页");
+        if(gPicList.length == 0)
+            throw "gPicList is empty, something error.";
+        gNowIndex = 0;
+        return;
+    }
+    updateNowImage();
+}
+
 function nextImage() {
     gNowIndex++;
     if(gNowIndex >= gPicList.length) {
-        // TODO tell the user the last image has reached
+        updateInfo("已到最后一页");
         if(gPicList.length == 0)
             throw "gPicList is empty, something error.";
         gNowIndex = gPicList.length - 1;
