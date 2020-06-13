@@ -171,6 +171,24 @@ function createDirItem(dirpath) {
             },
             enabled: "bookmark" in metadata
         }));
+        right_menu.append(new MenuItem({
+            label: "Mark Read",
+            click: function() {
+                metadata.read = true;
+                saveMeta(dirpath, metadata);
+                updateInfo("标记\"" + path.basename(dirpath) + "\"为已读");
+            },
+            enabled: !metadata.read
+        }));
+        right_menu.append(new MenuItem({
+            label: "Mark Unread",
+            click: function() {
+                metadata.read = false;
+                saveMeta(dirpath, metadata);
+                updateInfo("标记\"" + path.basename(dirpath) + "\"为未读");
+            },
+            enabled: !!metadata.read
+        }));
         right_menu.popup({window: remote.getCurrentWindow()});
     });
     return div;
