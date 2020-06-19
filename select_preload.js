@@ -4,6 +4,7 @@ const {remote} = require("electron");
 const {dialog, BrowserWindow, Menu, MenuItem} = remote;
 const fs = require("fs");
 const path = require("path");
+const child_process = require("child_process");
 
 //
 // Global(in this render) variables
@@ -101,6 +102,23 @@ window.addEventListener('DOMContentLoaded', () => {
                 fs.unlinkSync(getPreviewPath(dir));
         }
         updateInfo("Clear the cache.");
+    };
+
+    $("updateBtn").onclick = (ev) => {
+        if(!askForCheck(
+            "是否进行更新？（将从github上面拉取分支）",
+            "更新确认"))
+            return;
+        updateInfo("更新中……");
+        var output = child_process.execSync("git pull");
+        console.log(output);
+        if(!askForCheck(
+            "更新完成, 是否重启程序？",
+            "更新完成"
+            ))
+            return;
+        remote.app.relaunch();
+        remote.app.quit();
     };
 
     // Right Menu
