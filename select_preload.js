@@ -261,6 +261,7 @@ function createDirItem(dirpath) {
                     updateInfo("This folder has no pictures.");
                     return;
                 }
+                sortPicList(pics);
                 openComicWindow(pics[0]);
             },
         }));
@@ -319,6 +320,7 @@ function changeNowDir(dir_path) {
 
     var dirs, pics;
     [dirs, pics] = getDirsAndPicsSync(dir_path);
+    sortPicList(pics);
 
     for(var dir of dirs) {
         if(!gShowRead) {

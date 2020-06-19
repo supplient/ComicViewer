@@ -18,6 +18,7 @@ window.addEventListener('DOMContentLoaded', () => {
     gDirPath = path.dirname(img_path);
     var tmp = getDirsAndPicsSync(gDirPath);
     gPicList = tmp[1];
+    sortPicList(gPicList);
     gNowIndex = gPicList.indexOf(img_path);
     if(gNowIndex == -1)
         throw "gNowImgPath does not exist in gPicList, something error.";
