@@ -139,6 +139,10 @@ function sortPicList(picList) {
     })
 }
 
+function deleteDir(dirpath) {
+    fs.rmdirSync(dirpath, {recursive: true});
+}
+
 //
 // Metadata concerned
 //

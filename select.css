@@ -33,6 +33,11 @@ body {
     display: inline-block;
 }
 
+#viewDiv {
+    height: 100%;
+    width: 100%;
+}
+
 #previewContainer {
     position: absolute;
     pointer-events: none;

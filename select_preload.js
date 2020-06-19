@@ -103,6 +103,18 @@ window.addEventListener('DOMContentLoaded', () => {
         updateInfo("Clear the cache.");
     };
 
+    // Right Menu
+    $("viewDiv").addEventListener("contextmenu", (ev) => {
+        const menu = new Menu();
+        menu.append(new MenuItem({
+            label: "Refresh",
+            click: () => {changeNowDir(gNowDir)}
+        }));
+        menu.popup({window: remote.getCurrentWindow()});
+        ev.stopPropagation();
+        ev.preventDefault();
+    });
+
     // Set root dir
     var rootPath = path.normalize("test/root");
     var configRootPath = getConfigItem("root");
@@ -248,8 +260,6 @@ function createDirItem(dirpath) {
     });
 
     div.addEventListener("contextmenu", (ev) => {
-        ev.preventDefault();
-
         var metadata = loadMeta(dirpath);
         const right_menu = new Menu();
         right_menu.append(new MenuItem({
@@ -291,7 +301,20 @@ function createDirItem(dirpath) {
             },
             enabled: !!metadata.read
         }));
+        right_menu.append(new MenuItem({
+            label: "Delete",
+            click: function() {
+                if(!askForCheck(
+                    "你确认要删除\"" + path.basename(dirpath) + "\"吗？（这一行为不可逆转）", 
+                    "确认删除？"))
+                    return;
+                deleteDir(dirpath);
+                updateInfo("已删除\"" + path.basename(dirpath) + "\"。");
+            }
+        }))
         right_menu.popup({window: remote.getCurrentWindow()});
+        ev.stopPropagation();
+        ev.preventDefault();
     });
     return div;
 }
