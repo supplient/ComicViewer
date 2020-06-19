@@ -47,7 +47,7 @@ function createImg(img_path, max_height, max_width, callback) {
         var dheight = tmp[1];
         canvas.width = dwidth;
         canvas.height = dheight;
-        ctx.drawImage(img, 0, 0, dwidth, dheight); // TODO draw in center
+        ctx.drawImage(img, 0, 0, dwidth, dheight);
         if(callback)
             callback(canvas, img);
     };

@@ -6,10 +6,12 @@ const fs = require("fs");
 // State vars
 var gDirPath;
 var gPicList;
+var gPreloadList;
 var gNowIndex;
 
 // Initialize
 window.addEventListener('DOMContentLoaded', () => {
+    // Load params from SelectWindow
     var args = process.argv.slice(-1);
     var img_path = args[0];
 
@@ -20,13 +22,18 @@ window.addEventListener('DOMContentLoaded', () => {
     if(gNowIndex == -1)
         throw "gNowImgPath does not exist in gPicList, something error.";
 
-    updateNowImage();
+    // Init gPreloadList
+    gPreloadList = [];
 
+    // Init state concerned context menu items
     var metadata = loadMeta(gDirPath);
     if(metadata.read)
         switchToUnreadMenuItem();
     else
         switchToReadMenuItem();
+
+    // Init imageDiv
+    updateNowImage();
 });
 
 // Window concerned
@@ -92,8 +99,21 @@ function updateImageDiv(img_ele) {
     $("imageDiv").append(img_ele);
 }
 
-function createFullscreenImg(img_path) {
-    return createImg(img_path, $("imageDiv").clientHeight, $("imageDiv").clientWidth);
+function createFullscreenImg(img_path, callback) {
+    return createImg(img_path, $("imageDiv").clientHeight, $("imageDiv").clientWidth, callback);
+}
+
+function loadImage(index) {
+    if(gPreloadList[index])
+        return gPreloadList[index];
+
+    console.log("Loading No." + index.toString());
+    var img_path = gPicList[index];
+    var img_ele = createFullscreenImg(img_path, () => {
+        console.log("Loaded No." + index.toString());
+    });
+    gPreloadList[index] = img_ele;
+    return img_ele;
 }
 
 function switchToReadMenuItem() {
@@ -108,9 +128,17 @@ function switchToUnreadMenuItem() {
 
 // Content management
 function updateNowImage() {
-    var img_path = gPicList[gNowIndex];
-    var img_ele = createFullscreenImg(img_path);
-    updateImageDiv(img_ele);
+    // [gNowIndex-1, gNowindex+3]
+    var left = gNowIndex-1;
+    if(left < 0)
+        left = 0;
+    var right = gNowIndex+1 + 3;
+    if(right > gPicList.length)
+        right = gPicList.length;
+    for(var i=left; i<right; i++) {
+        loadImage(i);
+    }
+    updateImageDiv(loadImage(gNowIndex));
 }
 
 function prevImage() {
