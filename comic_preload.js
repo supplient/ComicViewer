@@ -117,6 +117,11 @@ function loadImage(index) {
     return img_ele;
 }
 
+function releaseImage(index) {
+    console.log("Release No." + index.toString());
+    gPreloadList[index] = undefined;
+}
+
 function switchToReadMenuItem() {
     read_menu_item.enabled = true;
     unread_menu_item.enabled = false;
@@ -129,17 +134,31 @@ function switchToUnreadMenuItem() {
 
 // Content management
 function updateNowImage() {
-    // [gNowIndex-1, gNowindex+3]
-    var left = gNowIndex-1;
+    // [gNowIndex-2, gNowindex+4]
+
+    // load & update
+    var left = gNowIndex-2;
     if(left < 0)
         left = 0;
-    var right = gNowIndex+1 + 3;
+    var right = gNowIndex+1 + 4;
     if(right > gPicList.length)
         right = gPicList.length;
     for(var i=left; i<right; i++) {
         loadImage(i);
     }
     updateImageDiv(loadImage(gNowIndex));
+
+    // release outdate
+    var k = left-1;
+    while(k >= 0 && gPreloadList[k]) {
+        releaseImage(k);
+        k--;
+    }
+    k = right;
+    while(k < gPicList.length && gPreloadList[k]) {
+        releaseImage(k);
+        k++;
+    }
 }
 
 function prevImage() {
