@@ -3,6 +3,7 @@ const {app, BrowserWindow} = require('electron')
 const path = require('path')
 
 global.debug_flag = false;
+global.cwd = process.cwd();
 
 function createWindow () {
   // Create the browser window.
@@ -25,6 +26,8 @@ function createWindow () {
   // Load command args
   if(process.argv.find((value) => {return value=="--debug"}))
     global.debug_flag = true;
+  if(!global.debug_flag)
+    global.cwd = path.join(process.cwd(), "resources/app");
 
   // Open the DevTools.
   if(global.debug_flag)

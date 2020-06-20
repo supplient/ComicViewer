@@ -5,6 +5,7 @@ const {dialog, BrowserWindow, Menu, MenuItem} = remote;
 const fs = require("fs");
 const path = require("path");
 const child_process = require("child_process");
+const { stderr } = require("process");
 
 //
 // Global(in this render) variables
@@ -105,20 +106,31 @@ window.addEventListener('DOMContentLoaded', () => {
     };
 
     $("updateBtn").onclick = (ev) => {
+        console.log(remote.getGlobal("cwd"));
         if(!askForCheck(
             "是否进行更新？（将从github上面拉取分支）",
             "更新确认"))
             return;
         updateInfo("更新中……");
-        var output = child_process.execSync("git pull");
-        console.log(output);
-        if(!askForCheck(
-            "更新完成, 是否重启程序？",
-            "更新完成"
-            ))
-            return;
-        remote.app.relaunch();
-        remote.app.quit();
+        var output;
+        output = child_process.exec("git pull", {
+            cwd: remote.getGlobal("cwd"),
+        }, (error, stdout, stderr) => {
+            if(error) {
+                console.error(error);
+                return;
+            }
+            updateInfo(stdout.toString());
+            console.log(stdout.toString());
+            if(!askForCheck(
+                "更新完成, 是否重启程序？",
+                "更新完成"
+                ))
+                return;
+            remote.app.relaunch();
+            remote.app.quit();
+        });
+        console.log("???");
     };
 
     // Right Menu
