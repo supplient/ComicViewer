@@ -24,10 +24,10 @@ body{
     height:99.5%;
 }
 
-img{
-    padding:0px;
-    border:0px;
-    margin:auto;
+canvas {
+    margin: auto;
+    width: fit-content;
+    height: fit-content;
 }
 
 #infoText {
