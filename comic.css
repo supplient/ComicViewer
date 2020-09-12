@@ -49,3 +49,9 @@ canvas {
     border: 5px;
     border-style: outset;
 }
+
+#pageInfoText {
+    position: fixed;
+    bottom: 0px;
+    left: 0px;
+}

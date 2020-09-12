@@ -132,11 +132,15 @@ function switchToUnreadMenuItem() {
     read_menu_item.enabled = false;
 }
 
+function updatePageInfo(info_str) {
+    $("pageInfoText").innerHTML = info_str;
+}
+
 // Content management
 function updateNowImage() {
     // [gNowIndex-2, gNowindex+4]
 
-    // load & update
+    // load
     var left = gNowIndex-2;
     if(left < 0)
         left = 0;
@@ -146,7 +150,10 @@ function updateNowImage() {
     for(var i=left; i<right; i++) {
         loadImage(i);
     }
+
+    // update
     updateImageDiv(loadImage(gNowIndex));
+    updatePageInfo(String(gNowIndex+1) + "/" + String(gPicList.length));
 
     // release outdate
     var k = left-1;
